@@ -124,6 +124,12 @@ m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 WINDOWS_RC_VERSION=`echo $PACKAGE_VERSION | sed 's/-.*//; s/\./, /g; s/$/, 0/'`
 
+# Handheld optimization flags
+AC_ARG_ENABLE(nokeyboard,
+	AS_HELP_STRING([--enable-nokeyboard],
+	[Enable controller optimizations for platforms lacking a keyboard]),
+	[CFLAGS="$CFLAGS -DUSE_VIRTUALKEYBOARD"])
+
 # This controls the prefix added to the start of program names.  For example,
 # if this is changed to "lemon-", the programs generated will be named
 # lemon-doom, lemon-heretic, etc.

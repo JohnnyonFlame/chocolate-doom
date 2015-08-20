@@ -29,6 +29,148 @@
 extern txt_widget_class_t txt_inputbox_class;
 extern txt_widget_class_t txt_int_inputbox_class;
 
+#ifdef USE_VIRTUALKEYBOARD
+#include "txt_label.h"
+#include "txt_window.h"
+#include "txt_separator.h"
+#include "txt_button.h"
+#include "txt_strut.h"
+
+//Forward Declarations, ugly warning suppressor
+static void VKBCreateWindow(txt_inputbox_t *inputbox, int charset);
+static void Backspace(txt_inputbox_t *inputbox);
+static void AddCharacter(txt_inputbox_t *inputbox, int key);
+static void FinishEditing(txt_inputbox_t *inputbox);
+
+static int vkb_charset_index;
+static txt_inputbox_t *vkb_inputbox;
+static txt_label_t *vkb_label;
+static txt_window_t *vkb_window;
+static char *vkb_charset[] =
+{
+    "1234567890"
+    "qwertyuiop"
+    "asdfghjkl:"
+    ",zxcvbnm/.",
+
+    "1234567890"
+    "QWERTYUIOP"
+    "ASDFGHJKL;"
+    "/ZXCVBNM<>",
+
+    "1234567890"
+    "!""#$%&'()+"
+    "-/:;<=>?@*"
+    "[\\]^_`{|}~",
+};
+
+static void VKBUpdateLabel()
+{
+    char buf[vkb_window->window_w - 5];
+
+    if (strlen(vkb_inputbox->buffer) > vkb_window->window_w - 7)
+    {
+        sprintf(buf, "...%s",
+                strchr(vkb_inputbox->buffer, '\0') - vkb_window->window_w - 10);
+        TXT_SetLabel(vkb_label, buf);
+    }
+    else
+    {
+        TXT_SetLabel(vkb_label, vkb_inputbox->buffer);
+    }
+}
+
+static void VKBAddCharacter(TXT_UNCAST_ARG(widget), int key)
+{
+    AddCharacter(vkb_inputbox, key);
+    VKBUpdateLabel();
+}
+
+static void VKBBackspace(TXT_UNCAST_ARG(widget), void *userdata)
+{
+    Backspace(vkb_inputbox);
+    VKBUpdateLabel();
+}
+
+static void VKBCycleCharsets(TXT_UNCAST_ARG(widget), void *userdata)
+{
+    TXT_CloseWindow(vkb_window);
+    VKBCreateWindow(vkb_inputbox,
+              (vkb_charset_index+1) %
+              (sizeof(vkb_charset) / sizeof(vkb_charset[0])));
+}
+
+static void VKBCloseWindow(TXT_UNCAST_ARG(widget), int keep)
+{
+    if (keep)
+    {
+        FinishEditing(vkb_inputbox);
+    }
+    else
+    {
+        vkb_inputbox->editing = 0;
+    }
+
+    TXT_CloseWindow(vkb_window);
+}
+
+static void VKBCreateWindow(txt_inputbox_t *inputbox, int charset_index)
+{
+    int i;
+    txt_table_t *keyboard;
+    txt_table_t *softact;
+    txt_table_t *softact_okcancel;
+    txt_table_t *organizer;
+
+    //Create Widgets
+    vkb_window = TXT_NewWindow(NULL);
+    vkb_inputbox = inputbox;
+    vkb_charset_index = charset_index;
+    vkb_label = TXT_NewLabel("");
+    keyboard = TXT_NewTable(19);
+    organizer = TXT_NewTable(3);
+    softact = TXT_NewTable(1);
+
+    //Populate Window
+    TXT_AddWidget(vkb_window, vkb_label);
+    TXT_AddWidget(vkb_window, TXT_NewSeparator(NULL));
+    TXT_AddWidget(vkb_window, organizer);
+    TXT_AddWidget(organizer, keyboard);
+    TXT_AddWidget(organizer, TXT_NewStrut(1, 0));
+    TXT_AddWidget(organizer, softact);
+
+    //Create Actions
+    TXT_AddWidget(softact, TXT_NewButton2("Backspace", VKBBackspace, NULL));
+    TXT_AddWidget(softact, TXT_NewButton2("Caps-Lock", VKBCycleCharsets, NULL));
+    TXT_AddWidget(softact, TXT_NewButton2("Revert", VKBCloseWindow, 0));
+	TXT_AddWidget(softact, TXT_NewButton2("Accept", VKBCloseWindow, 1));
+
+    //Create buttons and populate keyboard table
+    for (i=0; vkb_charset[vkb_charset_index][i] != '\0'; i++)
+    {
+        char button[] = {vkb_charset[vkb_charset_index][i], '\0'};
+        TXT_AddWidget(keyboard, TXT_NewButton2(button, VKBAddCharacter, button[0])); //, VKBAddCharacter));
+
+        //Don't add padding on the last of row
+        if ((i+1) % 10)
+        {
+            TXT_AddWidget(keyboard, TXT_NewStrut(1, 0));
+        }
+    }
+
+    //Format & Update things
+	TXT_SetWindowAction(vkb_window, TXT_HORIZ_LEFT, NULL);
+    TXT_SetWindowAction(vkb_window, TXT_HORIZ_CENTER, NULL);
+    TXT_SetWindowAction(vkb_window, TXT_HORIZ_RIGHT, NULL);
+    TXT_SetWidgetAlign(keyboard, TXT_HORIZ_CENTER);
+    TXT_SetBGColor(vkb_label, TXT_COLOR_BLACK);
+    TXT_LayoutWindow(vkb_window);
+    VKBUpdateLabel();
+	inputbox->editing = 1;
+}
+
+#endif // USE_VIRTUALKEYBOARD
+
 static void SetBufferFromValue(txt_inputbox_t *inputbox)
 {
     if (inputbox->widget.widget_class == &txt_inputbox_class)
@@ -53,6 +195,9 @@ static void SetBufferFromValue(txt_inputbox_t *inputbox)
 
 static void StartEditing(txt_inputbox_t *inputbox)
 {
+    #ifdef USE_VIRTUALKEYBOARD
+    VKBCreateWindow(inputbox, 0);
+    #endif // USE_VIRTUALKEYBOARD
     // Integer input boxes start from an empty buffer:
 
     if (inputbox->widget.widget_class == &txt_int_inputbox_class)
