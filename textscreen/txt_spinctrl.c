@@ -44,7 +44,7 @@ static void FloatFormatString(float step, char *buf, size_t buf_len)
     }
 }
 
-// Number of characters needed to represent a character 
+// Number of characters needed to represent a character
 
 static unsigned int IntWidth(int val)
 {
@@ -71,7 +71,7 @@ static unsigned int FloatWidth(float val, float step)
     if (precision > 0)
     {
         result += precision + 1;
-    }    
+    }
 
     return result;
 }
@@ -96,7 +96,7 @@ static unsigned int SpinControlWidth(txt_spincontrol_t *spincontrol)
             break;
 
     }
-    
+
     // Choose the wider of the two values.  Add one so that there is always
     // space for the cursor when editing.
 
@@ -263,18 +263,20 @@ static int TXT_SpinControlKeyPress(TXT_UNCAST_ARG(spincontrol), int key)
 
     if (spincontrol->editing)
     {
-        if (key == KEY_ENTER)
+#ifndef USE_VIRTUALKEYBOARD
+        if (key == KEY_ABUTTON)
         {
             FinishEditing(spincontrol);
             return 1;
         }
 
-        if (key == KEY_ESCAPE)
+        if (key == KEY_BBUTTON)
         {
             // Abort without saving value
             spincontrol->editing = 0;
             return 1;
         }
+#endif
 
         if (isdigit(key) || key == '-' || key == '.')
         {
@@ -292,7 +294,7 @@ static int TXT_SpinControlKeyPress(TXT_UNCAST_ARG(spincontrol), int key)
     {
         // Non-editing mode
 
-        if (key == KEY_ENTER)
+        if (key == KEY_ABUTTON)
         {
             spincontrol->editing = 1;
             TXT_StringCopy(spincontrol->buffer, "", spincontrol->buffer_len);
@@ -315,7 +317,7 @@ static int TXT_SpinControlKeyPress(TXT_UNCAST_ARG(spincontrol), int key)
 
             return 1;
         }
-        
+
         if (key == KEY_RIGHTARROW)
         {
             switch (spincontrol->type)

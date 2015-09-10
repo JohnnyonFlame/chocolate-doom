@@ -347,7 +347,7 @@ static int TXT_InputBoxKeyPress(TXT_UNCAST_ARG(inputbox), int key)
 
     if (!inputbox->editing)
     {
-        if (key == KEY_ENTER)
+        if (key == KEY_ABUTTON)
         {
             StartEditing(inputbox);
             return 1;
@@ -365,12 +365,12 @@ static int TXT_InputBoxKeyPress(TXT_UNCAST_ARG(inputbox), int key)
         return 0;
     }
 
-    if (key == KEY_ENTER)
+    if (key == KEY_ABUTTON)
     {
         FinishEditing(inputbox);
     }
 
-    if (key == KEY_ESCAPE)
+    if (key == KEY_BBUTTON)
     {
         inputbox->editing = 0;
     }
@@ -406,7 +406,7 @@ static void TXT_InputBoxMousePress(TXT_UNCAST_ARG(inputbox),
         {
             // Send a simulated keypress to start editing
 
-            TXT_WidgetKeyPress(inputbox, KEY_ENTER);
+            TXT_WidgetKeyPress(inputbox, KEY_ABUTTON);
         }
     }
 }

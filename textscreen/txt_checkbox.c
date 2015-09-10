@@ -82,13 +82,13 @@ static int TXT_CheckBoxKeyPress(TXT_UNCAST_ARG(checkbox), int key)
 {
     TXT_CAST_ARG(txt_checkbox_t, checkbox);
 
-    if (key == KEY_ENTER || key == ' ')
+    if (key == KEY_ABUTTON || key == ' ')
     {
         *checkbox->variable = !*checkbox->variable;
         TXT_EmitSignal(checkbox, "changed");
         return 1;
     }
-    
+
     return 0;
 }
 
@@ -100,7 +100,7 @@ static void TXT_CheckBoxMousePress(TXT_UNCAST_ARG(checkbox), int x, int y, int b
     {
         // Equivalent to pressing enter
 
-        TXT_CheckBoxKeyPress(checkbox, KEY_ENTER);
+        TXT_CheckBoxKeyPress(checkbox, KEY_ABUTTON);
     }
 }
 

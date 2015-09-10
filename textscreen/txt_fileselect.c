@@ -640,7 +640,7 @@ static int TXT_FileSelectKeyPress(TXT_UNCAST_ARG(fileselect), int key)
 
     if (!fileselect->inputbox->editing
      && !TXT_GetModifierState(TXT_MOD_ALT)
-     && key == KEY_ENTER)
+     && key == KEY_ABUTTON)
     {
         if (DoSelectFile(fileselect))
         {

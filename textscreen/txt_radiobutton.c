@@ -83,7 +83,7 @@ static int TXT_RadioButtonKeyPress(TXT_UNCAST_ARG(radiobutton), int key)
 {
     TXT_CAST_ARG(txt_radiobutton_t, radiobutton);
 
-    if (key == KEY_ENTER || key == ' ')
+    if (key == KEY_ABUTTON || key == ' ')
     {
         if (*radiobutton->variable != radiobutton->value)
         {
@@ -92,11 +92,11 @@ static int TXT_RadioButtonKeyPress(TXT_UNCAST_ARG(radiobutton), int key)
         }
         return 1;
     }
-    
+
     return 0;
 }
 
-static void TXT_RadioButtonMousePress(TXT_UNCAST_ARG(radiobutton), 
+static void TXT_RadioButtonMousePress(TXT_UNCAST_ARG(radiobutton),
                                       int x, int y, int b)
 {
     TXT_CAST_ARG(txt_radiobutton_t, radiobutton);
@@ -105,7 +105,7 @@ static void TXT_RadioButtonMousePress(TXT_UNCAST_ARG(radiobutton),
     {
         // Equivalent to pressing enter
 
-        TXT_RadioButtonKeyPress(radiobutton, KEY_ENTER);
+        TXT_RadioButtonKeyPress(radiobutton, KEY_ABUTTON);
     }
 }
 

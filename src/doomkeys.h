@@ -19,6 +19,14 @@
 #ifndef __DOOMKEYS__
 #define __DOOMKEYS__
 
+#ifdef __GCW0__
+#define KEY_ABUTTON KEY_LCTRL
+#define KEY_BBUTTON KEY_LALT
+#else
+#define KEY_ABUTTON KEY_ENTER
+#define KEY_BBUTTON KEY_ESCAPE
+#endif // __GCW0__
+
 //
 // DOOM keyboard definition.
 // This is the stuff configured by Setup.Exe.

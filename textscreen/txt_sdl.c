@@ -66,7 +66,7 @@ static txt_font_t *font;
 
 #ifndef TANGO
 
-static SDL_Color ega_colors[] = 
+static SDL_Color ega_colors[] =
 {
     {0x00, 0x00, 0x00, 0x00},          // 0: Black
     {0x00, 0x00, 0xa8, 0x00},          // 1: Blue
@@ -92,7 +92,7 @@ static SDL_Color ega_colors[] =
 // http://tango.freedesktop.org/ also
 // http://uwstopia.nl/blog/2006/07/tango-terminal
 
-static SDL_Color ega_colors[] = 
+static SDL_Color ega_colors[] =
 {
     {0x2e, 0x34, 0x36, 0x00},          // 0: Black
     {0x34, 0x65, 0xa4, 0x00},          // 1: Blue
@@ -686,11 +686,21 @@ static const char *SpecialKeyName(int key)
 {
     switch (key)
     {
-        case ' ':             return "SPACE";
         case KEY_RIGHTARROW:  return "RIGHT";
         case KEY_LEFTARROW:   return "LEFT";
         case KEY_UPARROW:     return "UP";
         case KEY_DOWNARROW:   return "DOWN";
+#ifdef __GCWO__
+        case KEY_RCTRL:       return "A";
+        case KEY_RALT:        return "B";
+        case KEY_RSHIFT:      return "X";
+        case ' ':             return "Y";
+        case KEY_TAB:         return "L";
+        case KEY_BACKSPACE:   return "R";
+        case KEY_ENTER:       return "START";
+        case KEY_ESCAPE:      return "SELECT";
+#else
+        case ' ':             return "SPACE";
         case KEY_ESCAPE:      return "ESC";
         case KEY_ENTER:       return "ENTER";
         case KEY_TAB:         return "TAB";
@@ -722,6 +732,7 @@ static const char *SpecialKeyName(int key)
         case KEY_INS:         return "INS";
         case KEY_DEL:         return "DEL";
         case KEY_PRTSCR:      return "PRTSC";
+#endif // __GCWO__
                  /*
         case KEYP_0:          return "PAD0";
         case KEYP_1:          return "PAD1";
@@ -757,6 +768,12 @@ void TXT_GetKeyDescription(int key, char *buf, size_t buf_len)
     {
         TXT_StringCopy(buf, keyname, buf_len);
     }
+#ifdef __GCW0__
+    else
+    {
+        TXT_snprintf(buf, buf_len, "???", key);
+    }
+#else
     else if (isprint(key))
     {
         TXT_snprintf(buf, buf_len, "%c", toupper(key));
@@ -765,6 +782,7 @@ void TXT_GetKeyDescription(int key, char *buf, size_t buf_len)
     {
         TXT_snprintf(buf, buf_len, "??%i", key);
     }
+#endif // __GCW0__
 }
 
 // Searches the desktop screen buffer to determine whether there are any
@@ -779,7 +797,7 @@ int TXT_ScreenHasBlinkingChars(void)
 
     for (y=0; y<TXT_SCREEN_H; ++y)
     {
-        for (x=0; x<TXT_SCREEN_W; ++x) 
+        for (x=0; x<TXT_SCREEN_W; ++x)
         {
             p = &screendata[(y * TXT_SCREEN_W + x) * 2];
 
@@ -797,7 +815,7 @@ int TXT_ScreenHasBlinkingChars(void)
     return 0;
 }
 
-// Sleeps until an event is received, the screen needs to be redrawn, 
+// Sleeps until an event is received, the screen needs to be redrawn,
 // or until timeout expires (if timeout != 0)
 
 void TXT_Sleep(int timeout)
@@ -810,9 +828,9 @@ void TXT_Sleep(int timeout)
 
         time_to_next_blink = BLINK_PERIOD - (SDL_GetTicks() % BLINK_PERIOD);
 
-        // There are blinking characters on the screen, so we 
+        // There are blinking characters on the screen, so we
         // must time out after a while
-       
+
         if (timeout == 0 || timeout > time_to_next_blink)
         {
             // Add one so it is always positive
