@@ -29,6 +29,7 @@
 extern txt_widget_class_t txt_inputbox_class;
 extern txt_widget_class_t txt_int_inputbox_class;
 
+#define USE_VIRTUALKEYBOARD
 #ifdef USE_VIRTUALKEYBOARD
 #include "txt_label.h"
 #include "txt_window.h"
@@ -121,6 +122,7 @@ static void VKBCreateWindow(txt_inputbox_t *inputbox, int charset_index)
     txt_table_t *softact;
     txt_table_t *softact_okcancel;
     txt_table_t *organizer;
+    txt_window_action_t *cancel, *caps;
 
     //Create Widgets
     vkb_window = TXT_NewWindow(NULL);
@@ -140,6 +142,10 @@ static void VKBCreateWindow(txt_inputbox_t *inputbox, int charset_index)
     TXT_AddWidget(organizer, softact);
 
     //Create Actions
+    cancel = TXT_NewWindowAction(KEY_BBUTTON, "Revert");
+    caps   = TXT_NewWindowAction(KEY_YBUTTON, "Caps");
+    TXT_SignalConnect(cancel, "pressed", VKBCloseWindow,   0);
+    TXT_SignalConnect(caps,   "pressed", VKBCycleCharsets, 0);
     TXT_AddWidget(softact, TXT_NewButton2("Backspace", VKBBackspace, NULL));
     TXT_AddWidget(softact, TXT_NewButton2("Caps-Lock", VKBCycleCharsets, NULL));
     TXT_AddWidget(softact, TXT_NewButton2("Revert", VKBCloseWindow, 0));
@@ -159,9 +165,8 @@ static void VKBCreateWindow(txt_inputbox_t *inputbox, int charset_index)
     }
 
     //Format & Update things
-	TXT_SetWindowAction(vkb_window, TXT_HORIZ_LEFT, NULL);
-    TXT_SetWindowAction(vkb_window, TXT_HORIZ_CENTER, NULL);
-    TXT_SetWindowAction(vkb_window, TXT_HORIZ_RIGHT, NULL);
+    TXT_SetWindowAction(vkb_window, TXT_HORIZ_LEFT,  cancel);
+    TXT_SetWindowAction(vkb_window, TXT_HORIZ_RIGHT, caps);
     TXT_SetWidgetAlign(keyboard, TXT_HORIZ_CENTER);
     TXT_SetBGColor(vkb_label, TXT_COLOR_BLACK);
     TXT_LayoutWindow(vkb_window);
