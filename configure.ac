@@ -130,10 +130,12 @@ AC_ARG_ENABLE(nokeyboard,
 		[--enable-nokeyboard],
 		[Enable controller optimizations for platforms lacking a keyboard]),
 	[CFLAGS="$CFLAGS -DUSE_VIRTUALKEYBOARD"])
-	
-AC_ARG_VAR(layout, AS_HELP_STRING(
-	[--layout],
-	[Adapts controller layout for different platforms]))
+
+AC_ARG_ENABLE(nosysio,
+	AS_HELP_STRING(
+		[--enable-nosysio],
+		[Hack to remove sys/io.h dependency.]),
+	[CFLAGS="$CFLAGS -DNO_SYSIO"])
 
 # This controls the prefix added to the start of program names.  For example,
 # if this is changed to "lemon-", the programs generated will be named

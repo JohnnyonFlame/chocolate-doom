@@ -23,7 +23,12 @@
 #include <string.h>
 #include <errno.h>
 #include <unistd.h>
+#ifndef NO_SYSIO
 #include <sys/io.h>
+#else
+#define inb
+#define outb
+#endif
 
 #include "opl.h"
 #include "opl_internal.h"
