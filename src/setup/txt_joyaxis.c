@@ -481,7 +481,7 @@ static int TXT_JoystickAxisKeyPress(TXT_UNCAST_ARG(joystick_axis), int key)
         return 1;
     }
 
-    if (key == KEY_BACKSPACE || key == KEY_DEL)
+    if (key == KEY_YBUTTON)
     {
         *joystick_axis->axis = -1;
     }

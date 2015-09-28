@@ -31,29 +31,22 @@ static int KeyPressCallback(txt_window_t *window, int key,
 {
     TXT_CAST_ARG(txt_key_input_t, key_input);
 
-    if (key != KEY_ESCAPE)
-    {
-        // Got the key press.  Save to the variable and close the window.
+	// Got the key press.  Save to the variable and close the window.
 
-        *key_input->variable = key;
+	*key_input->variable = key;
 
-        if (key_input->check_conflicts)
-        {
-            TXT_EmitSignal(key_input, "set");
-        }
+	if (key_input->check_conflicts)
+	{
+		TXT_EmitSignal(key_input, "set");
+	}
 
-        TXT_CloseWindow(window);
+	TXT_CloseWindow(window);
 
-        // Re-enable key mappings now that we have the key
+	// Re-enable key mappings now that we have the key
 
-        TXT_EnableKeyMapping(1);
+	TXT_EnableKeyMapping(1);
 
-        return 1;
-    }
-    else
-    {
-        return 0;
-    }
+	return 1;
 }
 
 static void ReleaseGrab(TXT_UNCAST_ARG(window), TXT_UNCAST_ARG(unused))
@@ -64,6 +57,7 @@ static void ReleaseGrab(TXT_UNCAST_ARG(window), TXT_UNCAST_ARG(unused))
 static void OpenPromptWindow(txt_key_input_t *key_input)
 {
     txt_window_t *window;
+    txt_window_action_t *action;
 
     // Silently update when the shift button is held down.
 
@@ -83,6 +77,9 @@ static void OpenPromptWindow(txt_key_input_t *key_input)
 
     SDL_WM_GrabInput(SDL_GRAB_ON);
     TXT_SignalConnect(window, "closed", ReleaseGrab, NULL);
+    TXT_SetWindowAction(window, TXT_HORIZ_LEFT, NULL);
+    TXT_SetWindowAction(window, TXT_HORIZ_RIGHT, NULL);
+    TXT_SetWindowAction(window, TXT_HORIZ_CENTER, NULL);
 }
 
 static void TXT_KeyInputSizeCalc(TXT_UNCAST_ARG(key_input))
@@ -130,7 +127,7 @@ static int TXT_KeyInputKeyPress(TXT_UNCAST_ARG(key_input), int key)
 {
     TXT_CAST_ARG(txt_key_input_t, key_input);
 
-    if (key == KEY_ENTER)
+    if (key == KEY_ABUTTON)
     {
         // Open a window to prompt for the new key press
 
@@ -139,7 +136,7 @@ static int TXT_KeyInputKeyPress(TXT_UNCAST_ARG(key_input), int key)
         return 1;
     }
 
-    if (key == KEY_BACKSPACE || key == KEY_DEL)
+    if (key == KEY_YBUTTON)
     {
         *key_input->variable = 0;
     }
@@ -155,7 +152,7 @@ static void TXT_KeyInputMousePress(TXT_UNCAST_ARG(widget), int x, int y, int b)
 
     if (b == TXT_MOUSE_LEFT)
     {
-        TXT_KeyInputKeyPress(widget, KEY_ENTER);
+        TXT_KeyInputKeyPress(widget, KEY_ABUTTON);
     }
 }
 

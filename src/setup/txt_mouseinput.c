@@ -131,7 +131,7 @@ static int TXT_MouseInputKeyPress(TXT_UNCAST_ARG(mouse_input), int key)
         return 1;
     }
 
-    if (key == KEY_BACKSPACE || key == KEY_DEL)
+    if (key == KEY_YBUTTON)
     {
         *mouse_input->variable = -1;
     }

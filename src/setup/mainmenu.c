@@ -252,8 +252,8 @@ void MainMenu(void)
                          (TxtWidgetSignalFunc) MultiplayerConfig, NULL),
           NULL);
 
-    quit_action = TXT_NewWindowAction(KEY_ESCAPE, "Quit");
-    warp_action = TXT_NewWindowAction(KEY_F2, "Warp");
+    quit_action = TXT_NewWindowAction(KEY_BBUTTON, "Quit");
+    warp_action = TXT_NewWindowAction(KEY_YBUTTON, "Warp");
     TXT_SignalConnect(quit_action, "pressed", QuitConfirm, NULL);
     TXT_SignalConnect(warp_action, "pressed",
                       (TxtWidgetSignalFunc) WarpMenu, NULL);

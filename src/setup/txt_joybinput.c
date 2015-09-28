@@ -288,7 +288,7 @@ static int TXT_JoystickInputKeyPress(TXT_UNCAST_ARG(joystick_input), int key)
         return 1;
     }
 
-    if (key == KEY_BACKSPACE || key == KEY_DEL)
+    if (key == KEY_YBUTTON)
     {
         *joystick_input->variable = -1;
     }

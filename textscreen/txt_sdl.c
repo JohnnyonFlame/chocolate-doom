@@ -775,16 +775,26 @@ static const char *SpecialKeyName(int key)
         case KEY_LEFTARROW:   return "LEFT";
         case KEY_UPARROW:     return "UP";
         case KEY_DOWNARROW:   return "DOWN";
-#ifdef __GCWO__
-        case KEY_RCTRL:       return "A";
-        case KEY_RALT:        return "B";
-        case KEY_RSHIFT:      return "X";
-        case ' ':             return "Y";
-        case KEY_TAB:         return "L";
-        case KEY_BACKSPACE:   return "R";
-        case KEY_ENTER:       return "START";
-        case KEY_ESCAPE:      return "SELECT";
-#else
+
+        // Normal Keys
+		case KEY_RCTRL:       return "A";
+		case KEY_RALT:        return "B";
+		case KEY_RSHIFT:      return "X";
+		case ' ':             return "Y";
+		case KEY_TAB:         return "L";
+		case KEY_BACKSPACE:   return "R";
+		case KEY_ENTER:       return "START";
+
+		//Key + Modifier
+		case 'a':             return "SEL+A";
+		case 'b':             return "SEL+B";
+		case 'x':             return "SEL+X";
+		case 'y':             return "SEL+Y";
+		case '[':             return "SEL+L";
+		case ']':             return "SEL+R";
+		case KEY_ESCAPE:      return "SEL+START";
+
+#if 0
         case ' ':             return "SPACE";
         case KEY_ESCAPE:      return "ESC";
         case KEY_ENTER:       return "ENTER";
@@ -817,7 +827,7 @@ static const char *SpecialKeyName(int key)
         case KEY_INS:         return "INS";
         case KEY_DEL:         return "DEL";
         case KEY_PRTSCR:      return "PRTSC";
-#endif // __GCWO__
+#endif // PC Keys - unused
                  /*
         case KEYP_0:          return "PAD0";
         case KEYP_1:          return "PAD1";

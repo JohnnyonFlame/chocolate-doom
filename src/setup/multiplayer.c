@@ -623,7 +623,7 @@ static txt_window_action_t *StartGameAction(int multiplayer)
     txt_window_action_t *action;
     TxtWidgetSignalFunc callback;
 
-    action = TXT_NewWindowAction(KEY_F10, "Start");
+    action = TXT_NewWindowAction(KEY_XBUTTON, "Start");
 
     if (multiplayer)
     {
@@ -850,7 +850,7 @@ static txt_window_action_t *JoinGameAction(void)
 {
     txt_window_action_t *action;
 
-    action = TXT_NewWindowAction(KEY_F10, "Connect");
+    action = TXT_NewWindowAction(KEY_XBUTTON, "Connect");
     TXT_SignalConnect(action, "pressed", DoJoinGame, NULL);
 
     return action;

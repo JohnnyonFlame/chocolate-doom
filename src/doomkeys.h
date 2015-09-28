@@ -21,6 +21,7 @@
 
 //GCW Zero default menu keys
 #define KEY_YBUTTON ' '
+#define KEY_XBUTTON KEY_RSHIFT
 #define KEY_ABUTTON KEY_RCTRL
 #define KEY_BBUTTON KEY_RALT
 
