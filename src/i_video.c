@@ -698,6 +698,57 @@ static void UpdateShiftStatus(SDL_Event *event)
     }
 }
 
+#ifdef USE_KEYCOMBOS
+/*
+ *
+ * We don't have enough keys on the GCW0, so we'll resort to creating key-combos.
+ * These are the support variables and arrays
+ *
+ */
+typedef struct key_combo_t {
+	int mod_key;
+	int mod_isdown;
+} key_combo_t;
+
+static int is_mod = 0;
+static int key_mod = SDLK_ESCAPE;
+
+static key_combo_t key_combos[SDLK_LAST] = {
+	/*
+	 * KEYS W/ NO MACRO, MIGHT CREATE "initialized field overwritten" warnings.
+	 */
+
+	[0 ... SDLK_LAST - 1] = {-1, 0},
+
+	/*
+	 * DPAD
+	 */
+	[SDLK_UP] = {SDLK_u, 0},
+	[SDLK_DOWN] = {SDLK_d, 0},
+	[SDLK_LEFT] = {SDLK_l, 0},
+	[SDLK_RIGHT] = {SDLK_r, 0},
+
+	/*
+	 * SHOULDERS
+	 */
+	[SDLK_TAB] = {SDLK_LEFTBRACKET, 0},
+	[SDLK_BACKSPACE] = {SDLK_RIGHTBRACKET, 0},
+
+	/*
+	 * FACE BUTTONS
+	 */
+	[SDLK_SPACE] = {SDLK_y, 0},
+	[SDLK_LSHIFT] = {SDLK_x, 0},
+	[SDLK_LALT] = {SDLK_b, 0},
+	[SDLK_RCTRL] = {SDLK_a, 0},
+
+	/*
+	 * START
+	 */
+	[SDLK_RETURN] = {SDLK_ESCAPE, 0},
+};
+#endif
+
 void I_GetEvent(void)
 {
     SDL_Event sdlevent;
@@ -711,6 +762,34 @@ void I_GetEvent(void)
     
     while (SDL_PollEvent(&sdlevent))
     {
+
+#ifdef USE_KEYCOMBOS
+		/*
+		 * This is the code that does key-combos.
+		 */
+		if (sdlevent.type == SDL_KEYUP || sdlevent.type == SDL_KEYDOWN) {
+			key_combo_t *key = &key_combos[sdlevent.key.keysym.sym];
+
+			//deal with is_mod key events and be done with it
+			if (sdlevent.key.keysym.sym == key_mod) {
+				is_mod = (sdlevent.type == SDL_KEYDOWN);
+				continue;
+			}
+
+			//otherwise, lets check if this is a key with mods
+			else if (key->mod_key != -1) {
+
+				if ((key->mod_isdown && sdlevent.type == SDL_KEYUP) /* was it downed before? */
+				|| (is_mod && sdlevent.type == SDL_KEYDOWN)) /* are we pressing a key, and if so, do we have the modifier pressed? */
+				{
+					sdlevent.key.keysym.sym = key->mod_key;
+					key->mod_isdown = (sdlevent.type == SDL_KEYDOWN);
+				} else if (key->mod_isdown && sdlevent.type == SDL_KEYDOWN) /* this shouldn't happen, but key repeat causes this. works around that. */
+					continue;
+			}
+		}
+#endif
+
         // ignore mouse events when the window is not focused
 
         if (!window_focused 

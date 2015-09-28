@@ -136,6 +136,12 @@ AC_ARG_ENABLE(nosysio,
 		[--enable-nosysio],
 		[Hack to remove sys/io.h dependency.]),
 	[CFLAGS="$CFLAGS -DNO_SYSIO"])
+	
+AC_ARG_ENABLE(keycombo,
+    AS_HELP_STRING(
+        [--enable-keycombo],
+        [Enable controller optimizations for platforms with reduced key-count]),
+    [CFLAGS="$CFLAGS -DUSE_KEYCOMBOS"])
 
 # This controls the prefix added to the start of program names.  For example,
 # if this is changed to "lemon-", the programs generated will be named

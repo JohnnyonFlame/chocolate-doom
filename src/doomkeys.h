@@ -19,15 +19,10 @@
 #ifndef __DOOMKEYS__
 #define __DOOMKEYS__
 
-#ifdef __GCW0__
+//GCW Zero default menu keys
 #define KEY_YBUTTON ' '
-#define KEY_ABUTTON KEY_LCTRL
-#define KEY_BBUTTON KEY_LALT
-#else
-#define KEY_YBUTTON KEY_CAPSLOCK
-#define KEY_ABUTTON KEY_ENTER
-#define KEY_BBUTTON KEY_ESCAPE
-#endif // __GCW0__
+#define KEY_ABUTTON KEY_RCTRL
+#define KEY_BBUTTON KEY_RALT
 
 //
 // DOOM keyboard definition.
