@@ -197,13 +197,149 @@ int joybmenu = -1;
 // "use" has been pressed
 
 int dclick_use = 1;
- 
+
+//
+// Undo all default key bindings.
+//
+
+void M_UnbindAll(void)
+{
+	key_right = 0;
+	key_left = 0;
+	key_up = 0;
+	key_down = 0;
+	key_strafeleft = 0;
+	key_straferight = 0;
+	key_fire = 0;
+	key_use = 0;
+	key_strafe = 0;
+	key_speed = 0;
+	key_flyup = 0;
+	key_flydown = 0;
+	key_flycenter = 0;
+	key_lookup = 0;
+	key_lookdown = 0;
+	key_lookcenter = 0;
+	key_invleft = 0;
+	key_invright = 0;
+	key_useartifact = 0;
+	key_jump = 0;
+	key_arti_all             = 0;
+	key_arti_health          = 0;
+	key_arti_poisonbag       = 0;
+	key_arti_blastradius     = 0;
+	key_arti_teleport        = 0;
+	key_arti_teleportother   = 0;
+	key_arti_egg             = 0;
+	key_arti_invulnerability = 0;
+	key_usehealth = 0;
+	key_invquery  = 0;
+	key_mission   = 0;
+	key_invpop    = 0;
+	key_invkey    = 0;
+	key_invhome   = 0;
+	key_invend    = 0;
+	key_invuse    = 0;
+	key_invdrop   = 0;
+	key_message_refresh = 0;
+	key_pause = 0;
+	key_demo_quit = 0;
+	key_spy = 0;
+	key_multi_msg = 0;
+	key_multi_msgplayer[0] = 0;
+	key_multi_msgplayer[1] = 0;
+	key_multi_msgplayer[2] = 0;
+	key_multi_msgplayer[3] = 0;
+	key_multi_msgplayer[4] = 0;
+	key_multi_msgplayer[5] = 0;
+	key_multi_msgplayer[6] = 0;
+	key_multi_msgplayer[7] = 0;
+	key_weapon1 = 0;
+	key_weapon2 = 0;
+	key_weapon3 = 0;
+	key_weapon4 = 0;
+	key_weapon5 = 0;
+	key_weapon6 = 0;
+	key_weapon7 = 0;
+	key_weapon8 = 0;
+	key_prevweapon = 0;
+	key_nextweapon = 0;
+	key_map_north     = 0;
+	key_map_south     = 0;
+	key_map_east      = 0;
+	key_map_west      = 0;
+	key_map_zoomin    = 0;
+	key_map_zoomout   = 0;
+	key_map_toggle    = 0;
+	key_map_maxzoom   = 0;
+	key_map_follow    = 0;
+	key_map_grid      = 0;
+	key_map_mark      = 0;
+	key_map_clearmark = 0;
+	key_menu_activate  = 0;
+	key_menu_up        = 0;
+	key_menu_down      = 0;
+	key_menu_left      = 0;
+	key_menu_right     = 0;
+	key_menu_back      = 0;
+	key_menu_forward   = 0;
+	key_menu_confirm   = 0;
+	key_menu_abort     = 0;
+	key_menu_help      = 0;
+	key_menu_save      = 0;
+	key_menu_load      = 0;
+	key_menu_volume    = 0;
+	key_menu_detail    = 0;
+	key_menu_qsave     = 0;
+	key_menu_endgame   = 0;
+	key_menu_messages  = 0;
+	key_menu_qload     = 0;
+	key_menu_quit      = 0;
+	key_menu_gamma     = 0;
+	key_menu_incscreen = 0;
+	key_menu_decscreen = 0;
+	key_menu_screenshot = 0;
+}
+
+//
+// Base doom controllers - Overriden/Further binded by other games on their game-specific codes.
+//
+
+void M_BindCommonDefaults(void)
+{
+	key_right = KEY_RIGHTARROW;
+	key_left = KEY_LEFTARROW;
+	key_up = KEY_UPARROW;
+	key_down = KEY_DOWNARROW;
+	key_fire = KEY_RCTRL;
+	key_use = ' ';
+	key_strafe = KEY_RALT;
+	key_speed = KEY_XBUTTON;
+	key_prevweapon = KEY_TAB;
+	key_nextweapon = KEY_BACKSPACE;
+
+	key_map_toggle = KEY_ESCAPE;
+	key_menu_activate  = KEY_ENTER;
+	key_menu_up        = KEY_UPARROW;
+	key_menu_down      = KEY_DOWNARROW;
+	key_menu_left      = KEY_LEFTARROW;
+	key_menu_right     = KEY_RIGHTARROW;
+	key_menu_back      = KEY_BBUTTON;
+	key_menu_forward   = KEY_ABUTTON;
+	key_menu_confirm   = KEY_ABUTTON;
+	key_menu_abort     = KEY_BBUTTON;
+}
+
 // 
 // Bind all of the common controls used by Doom and all other games.
+// JohnnyonFlame: These will be overriden by other games.
 //
 
 void M_BindBaseControls(void)
 {
+	M_UnbindAll();
+	M_BindCommonDefaults();
+
     M_BindIntVariable("key_right",          &key_right);
     M_BindIntVariable("key_left",           &key_left);
     M_BindIntVariable("key_up",             &key_up);
@@ -241,6 +377,15 @@ void M_BindBaseControls(void)
 
 void M_BindHereticControls(void)
 {
+	M_UnbindAll();
+	M_BindCommonDefaults();
+
+	key_invleft = 'l';
+	key_invright = 'r';
+	key_prevweapon = KEY_BACKSPACE;
+	key_nextweapon = KEY_TAB;
+	key_useartifact = 'u';
+
     M_BindIntVariable("key_flyup",          &key_flyup);
     M_BindIntVariable("key_flydown",        &key_flydown);
     M_BindIntVariable("key_flycenter",      &key_flycenter);
@@ -256,6 +401,16 @@ void M_BindHereticControls(void)
 
 void M_BindHexenControls(void)
 {
+	M_UnbindAll();
+	M_BindCommonDefaults();
+
+	key_invleft = 'l';
+	key_invright = 'r';
+	key_prevweapon = '[';
+	key_nextweapon = ']';
+	key_invuse = KEY_BACKSPACE;
+	key_jump = KEY_TAB;
+
     M_BindIntVariable("key_jump",           &key_jump);
     M_BindIntVariable("mouseb_jump",        &mousebjump);
     M_BindIntVariable("joyb_jump",          &joybjump);
@@ -272,15 +427,17 @@ void M_BindHexenControls(void)
 
 void M_BindStrifeControls(void)
 {
-    // These are shared with all games, but have different defaults:
-    key_message_refresh = '/';
+    M_UnbindAll();
+    M_BindCommonDefaults();
 
-    // These keys are shared with Heretic/Hexen but have different defaults:
-    key_jump     = 'a';
-    key_lookup   = KEY_PGUP;
-    key_lookdown = KEY_PGDN;
-    key_invleft  = KEY_INS;
-    key_invright = KEY_DEL;
+	key_invleft = 'l';
+	key_invright = 'r';
+	key_prevweapon = '[';
+	key_nextweapon = ']';
+	key_invuse = KEY_BACKSPACE;
+	key_jump = KEY_TAB;
+	key_mission = 'u';
+	key_invdrop = 'd';
 
     M_BindIntVariable("key_jump",           &key_jump);
     M_BindIntVariable("key_lookUp",         &key_lookup);
@@ -396,4 +553,3 @@ void M_ApplyPlatformDefaults(void)
 {
     // no-op. Add your platform-specific patches here.
 }
-
