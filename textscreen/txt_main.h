@@ -64,7 +64,7 @@
 // Screen size
 
 #define TXT_SCREEN_W 80
-#define TXT_SCREEN_H 25
+#define TXT_SCREEN_H 30
 
 #define TXT_COLOR_BLINKING (1 << 3)
 

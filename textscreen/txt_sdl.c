@@ -243,6 +243,13 @@ int TXT_Init(void)
         return 0;
     }
 
+    //
+    // JohnnyonFlame: We don't have a mouse on the GCW Zero, so disable cursor.
+    // TODO:: Maybe improve this in the future? Enable cursor on mouse event?
+    //
+
+    SDL_ShowCursor(0);
+
     ChooseFont();
 
     // Always create the screen at the native screen depth (bpp=0);

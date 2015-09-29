@@ -35,7 +35,7 @@ void I_Endoom(byte *endoom_data)
 {
     unsigned char *screendata;
     int y;
-    int indent;
+    int indent_x_src, indent_y_dst;
 
     // Set up text mode screen
 
@@ -47,12 +47,16 @@ void I_Endoom(byte *endoom_data)
 
     screendata = TXT_GetScreenData();
 
-    indent = (ENDOOM_W - TXT_SCREEN_W) / 2;
+    indent_x_src = (ENDOOM_W - TXT_SCREEN_W) / 2;
+    indent_y_dst = (TXT_SCREEN_H - ENDOOM_H) / 2;
 
     for (y=0; y<TXT_SCREEN_H; ++y)
     {
-        memcpy(screendata + (y * TXT_SCREEN_W * 2),
-               endoom_data + (y * ENDOOM_W + indent) * 2,
+    	if (y >= ENDOOM_H)
+    		break;
+
+        memcpy(screendata + ((y+indent_y_dst) * TXT_SCREEN_W * 2),
+               endoom_data + (y * ENDOOM_W + indent_x_src) * 2,
                TXT_SCREEN_W * 2);
     }
 
