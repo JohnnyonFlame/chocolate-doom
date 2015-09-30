@@ -634,6 +634,7 @@ void M_DoSave(int slot)
 //
 void M_SaveSelect(int choice)
 {
+	int hour, minute, second;
     // we are going to be intercepting all chars
     saveStringEnter = 1;
     
@@ -642,6 +643,27 @@ void M_SaveSelect(int choice)
     if (!strcmp(savegamestrings[choice], EMPTYSTRING))
 	savegamestrings[choice][0] = 0;
     saveCharIndex = strlen(savegamestrings[choice]);
+
+
+    second = leveltime / TICRATE;
+    minute = leveltime / (TICRATE * 60);
+    hour   = leveltime / (TICRATE * 360);
+#ifdef USE_VIRTUALKEYBOARD
+    if (gamemission == doom)
+    {
+        if (hour)
+            snprintf(savegamestrings[choice], SAVESTRINGSIZE, "E%iM%i %02i:%02ih, skill: %i", gamemap, gameepisode, hour, minute % 60, gameskill);
+        else
+            snprintf(savegamestrings[choice], SAVESTRINGSIZE, "E%iM%i %02i:%02im, skill: %i", gamemap, gameepisode, minute, second % 60, gameskill);
+    }
+    else
+    {
+        if (hour)
+            snprintf(savegamestrings[choice], SAVESTRINGSIZE, "MAP%02i %02i:%02ih, skill %i", gamemap, hour, minute % 60, gameskill);
+        else
+            snprintf(savegamestrings[choice], SAVESTRINGSIZE, "MAP%02i %02i:%02im, skill %i", gamemap, minute, second % 60, gameskill);
+    }
+#endif
 }
 
 //
@@ -1562,6 +1584,29 @@ boolean M_Responder (event_t* ev)
     if (key == -1)
 	return false;
 
+#ifdef USE_VIRTUALKEYBOARD
+	if (saveStringEnter)
+	{
+		switch(key)
+		{
+		case KEY_BBUTTON:
+			saveStringEnter = 0;
+			M_StringCopy(savegamestrings[saveSlot], saveOldString,
+						 SAVESTRINGSIZE);
+			break;
+
+		case KEY_ABUTTON:
+			saveStringEnter = 0;
+			if (savegamestrings[saveSlot][0])
+				M_DoSave(saveSlot);
+			break;
+
+		default: break;
+		}
+
+		return true;
+	}
+#else
     // Save Game string input
     if (saveStringEnter)
     {
@@ -1620,6 +1665,7 @@ boolean M_Responder (event_t* ev)
 	}
 	return true;
     }
+#endif
     
     // Take care of any messages that need input
     if (messageToPrint)

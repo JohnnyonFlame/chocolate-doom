@@ -365,7 +365,7 @@ void ConfigKeyboard(void)
 
     always_run = joybspeed >= 20;
 
-    window = TXT_NewWindow("Keyboard configuration");
+    window = TXT_NewWindow("Controller configuration");
 
     TXT_SetWindowHelpURL(window, WINDOW_HELP_URL);
 

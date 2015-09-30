@@ -216,16 +216,16 @@ void MainMenu(void)
     TXT_SetWindowHelpURL(window, WINDOW_HELP_URL);
 
     TXT_AddWidgets(window,
-          TXT_NewButton2("Configure Display",
-                         (TxtWidgetSignalFunc) ConfigDisplay, NULL),
+          /*TXT_NewButton2("Configure Display",
+                         (TxtWidgetSignalFunc) ConfigDisplay, NULL),*/
           TXT_NewButton2("Configure Sound",
                          (TxtWidgetSignalFunc) ConfigSound, NULL),
-          TXT_NewButton2("Configure Keyboard",
+          TXT_NewButton2("Configure Controller",
                          (TxtWidgetSignalFunc) ConfigKeyboard, NULL),
-          TXT_NewButton2("Configure Mouse",
+          /*TXT_NewButton2("Configure Mouse",
                          (TxtWidgetSignalFunc) ConfigMouse, NULL),
           TXT_NewButton2("Configure Gamepad/Joystick",
-                         (TxtWidgetSignalFunc) ConfigJoystick, NULL),
+                         (TxtWidgetSignalFunc) ConfigJoystick, NULL),*/
           NULL);
 
     // The compatibility window is only appropriate for Doom/Strife.

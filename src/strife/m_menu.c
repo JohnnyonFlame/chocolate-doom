@@ -88,6 +88,7 @@ int			screenSize;
 
 // -1 = no quicksave slot picked!
 int			quickSaveSlot;
+int			prevSaveSlot;
 
  // 1 = message to be printed
 int			messageToPrint;
@@ -131,7 +132,8 @@ boolean                 menuindialog;   // haleyjd 09/04/10: ditto
 #define LINEHEIGHT		19
 
 extern boolean		sendpause;
-char			savegamestrings[10][SAVESTRINGSIZE];
+char			savegamestrings     [10][SAVESTRINGSIZE];
+char			savegamestrings_time[10][SAVESTRINGSIZE];
 
 char	endstring[160];
 
@@ -542,6 +544,8 @@ void M_ReadSaveStrings(void)
 {
     FILE *handle;
     int   i;
+    byte  gameticks[3];
+    int   ticks, hour, minute, second;
     char *fname = NULL;
 
     for(i = 0; i < load_end; i++)
@@ -560,11 +564,76 @@ void M_ReadSaveStrings(void)
         }
         fread(savegamestrings[i], 1, SAVESTRINGSIZE, handle);
         fclose(handle);
+
+        fname = M_SafeFilePath(savegamedir, M_MakeStrifeSaveDir(i, "\\2"));
+        handle = fopen(fname, "rb");
+        if (handle == NULL)
+        {
+            savegamestrings_time[i][0] = 0;
+        }
+        else
+        {
+            //Read gameticks elapsed
+            fseek(handle, 17, SEEK_SET); // VERSIONSIZE + 1 + MAXPLAYERS
+            fread(gameticks, 1, 3, handle);
+
+            //Parse gameticks
+            ticks = (gameticks[0] << 16) | (gameticks[1] << 8) | gameticks[2];
+            second = ticks / TICRATE;
+            minute = second / 60;
+            hour = minute / 60;
+
+            //Format into either hhhhh, hh:mm or mm:ss
+            if (hour > 99)
+                snprintf(savegamestrings_time[i], SAVESTRINGSIZE, "(%05ih)", hour);
+            else if (hour > 0)
+                snprintf(savegamestrings_time[i], SAVESTRINGSIZE, "(%02i:%02ih)", hour, minute % 60);
+            else
+                snprintf(savegamestrings_time[i], SAVESTRINGSIZE, "(%02i:%02im)", minute % 60, second % 60);
+        }
+
         LoadMenu[i].status = 1;
     }
 
     if(fname)
         Z_Free(fname);
+}
+
+//
+// M_DrawSaveStringNotEditing
+//
+// Finds appropriate length for the concat of both time and profile name and prints it
+//
+
+void M_DrawSaveStringNotEditing(int i)
+{
+    int len;
+    char buf[SAVESTRINGSIZE*2];
+
+    snprintf(buf, SAVESTRINGSIZE*2, "%s %s", savegamestrings[i], savegamestrings_time[i]);
+
+    //Test if we can fit both profile name and elapsed time on the screen
+    if (M_StringWidth(buf) > 24*8)
+    {
+        //Reduce string until we can fit both elapsed time and profile name
+        len = strlen(savegamestrings[i]) - 3;
+
+        do
+        {
+            snprintf(buf, SAVESTRINGSIZE*2, "%.*s... %s", len--, savegamestrings[i], savegamestrings_time[i]);
+        } while (M_StringWidth(buf) > 24*8);
+
+        snprintf(buf, SAVESTRINGSIZE*2, "%.*s...", len+1, savegamestrings[i]);
+    }
+    else
+    {
+        M_StringCopy(buf, savegamestrings[i], SAVESTRINGSIZE);
+    }
+
+    M_DrawSaveLoadBorder(LoadDef.x,LoadDef.y+LINEHEIGHT*i);
+    M_WriteText(LoadDef.x,LoadDef.y+LINEHEIGHT*i,buf);
+    M_WriteText(LoadDef.x + (24 * 8) - M_StringWidth(savegamestrings_time[i]),
+            LoadDef.y+LINEHEIGHT*i,savegamestrings_time[i]);
 }
 
 //
@@ -581,8 +650,15 @@ void M_DrawNameChar(void)
 
     for (i = 0;i < load_end; i++)
     {
-        M_DrawSaveLoadBorder(LoadDef.x,LoadDef.y+LINEHEIGHT*i);
-        M_WriteText(LoadDef.x,LoadDef.y+LINEHEIGHT*i,savegamestrings[i]);
+        if (!saveStringEnter || i != quickSaveSlot)
+        {
+            M_DrawSaveStringNotEditing(i);
+        }
+        else
+        {
+            M_DrawSaveLoadBorder(LoadDef.x,LoadDef.y+LINEHEIGHT*i);
+            M_WriteText(LoadDef.x,LoadDef.y+LINEHEIGHT*i,savegamestrings[i]);
+        }
     }
 
     if (saveStringEnter)
@@ -627,15 +703,15 @@ void M_DoNameChar(int choice)
 //
 void M_DrawLoad(void)
 {
-    int             i;
+
+    int i;
 
     V_DrawPatchDirect(72, 28, 
                       W_CacheLumpName(DEH_String("M_LOADG"), PU_CACHE));
 
     for (i = 0;i < load_end; i++)
     {
-        M_DrawSaveLoadBorder(LoadDef.x,LoadDef.y+LINEHEIGHT*i);
-        M_WriteText(LoadDef.x,LoadDef.y+LINEHEIGHT*i,savegamestrings[i]);
+        M_DrawSaveStringNotEditing(i);
     }
 }
 
@@ -713,8 +789,15 @@ void M_DrawSave(void)
     V_DrawPatchDirect(72, 28, W_CacheLumpName(DEH_String("M_SAVEG"), PU_CACHE));
     for (i = 0;i < load_end; i++)
     {
-        M_DrawSaveLoadBorder(LoadDef.x,LoadDef.y+LINEHEIGHT*i);
-        M_WriteText(LoadDef.x,LoadDef.y+LINEHEIGHT*i,savegamestrings[i]);
+        if (!saveStringEnter || i != quickSaveSlot)
+        {
+            M_DrawSaveStringNotEditing(i);
+        }
+        else
+        {
+            M_DrawSaveLoadBorder(LoadDef.x,LoadDef.y+LINEHEIGHT*i);
+            M_WriteText(LoadDef.x,LoadDef.y+LINEHEIGHT*i,savegamestrings[i]);
+        }
     }
 
     if (saveStringEnter)
@@ -755,14 +838,21 @@ void M_SaveSelect(int choice)
     // we are going to be intercepting all chars
     saveStringEnter = 1;
 
-    // [STRIFE]
-    quickSaveSlot = choice;
-    //saveSlot = choice;
-
     M_StringCopy(saveOldString, savegamestrings[choice], sizeof(saveOldString));
     if (!strcmp(savegamestrings[choice],EMPTYSTRING))
         savegamestrings[choice][0] = 0;
+
+    if (quickSaveSlot >= 0 && !namingCharacter)
+    {
+        M_StringCopy(savegamestrings[choice], savegamestrings[quickSaveSlot], sizeof(saveOldString));
+    }
+
     saveCharIndex = strlen(savegamestrings[choice]);
+
+    // [STRIFE]
+    prevSaveSlot  = quickSaveSlot;
+    quickSaveSlot = choice;
+    //saveSlot = choice;
 }
 
 //
@@ -1834,6 +1924,7 @@ boolean M_Responder (event_t* ev)
     if (key == -1)
         return false;
 
+#ifndef USE_VIRTUALKEYBOARD
     // Save Game string input
     if (saveStringEnter)
     {
@@ -1901,6 +1992,80 @@ boolean M_Responder (event_t* ev)
         }
         return true;
     }
+#else
+    if (saveStringEnter)
+    {
+		switch(key)
+		{
+		case KEY_BBUTTON:
+			saveStringEnter = 0;
+			M_StringCopy(savegamestrings[quickSaveSlot], saveOldString,
+						 sizeof(savegamestrings[quickSaveSlot]));
+			quickSaveSlot = prevSaveSlot;
+			break;
+
+		case KEY_ABUTTON:
+			// [STRIFE]
+			saveStringEnter = 0;
+			if(gameversion == exe_strife_1_31 && !namingCharacter)
+			{
+			   // In 1.31, we can be here as a result of normal saving again,
+			   // whereas in 1.2 this only ever happens when naming your
+			   // character to begin a new game.
+			   M_DoSave(quickSaveSlot);
+			   return true;
+			}
+			if (savegamestrings[quickSaveSlot][0])
+				M_DoNameChar(quickSaveSlot);
+			break;
+
+		case KEY_UPARROW:
+			if (saveCharIndex + savegamestrings[quickSaveSlot][saveCharIndex] == 0)
+			{
+				savegamestrings[quickSaveSlot][saveCharIndex] = ' ';
+				savegamestrings[quickSaveSlot][saveCharIndex+1] = 0;
+				return true;
+			}
+
+			//Add one until strrchr returns true
+			while (!strrchr(" 0123456789abcdefghijklmnopqrstuvwxyz",
+					++savegamestrings[quickSaveSlot][saveCharIndex]));
+			break;
+
+		case KEY_DOWNARROW:
+			if (saveCharIndex + savegamestrings[quickSaveSlot][saveCharIndex] == 0)
+			{
+				savegamestrings[quickSaveSlot][saveCharIndex] = ' ';
+				savegamestrings[quickSaveSlot][saveCharIndex+1] = 0;
+				return true;
+			}
+
+			//Remove one until strrchr returns true
+			while (!strrchr(" 0123456789abcdefghijklmnopqrstuvwxyz",
+					--savegamestrings[quickSaveSlot][saveCharIndex]));
+			break;
+
+		case KEY_LEFTARROW:
+			if (saveCharIndex > 0)
+			{
+				savegamestrings[quickSaveSlot][saveCharIndex--] = 0;
+			}
+			break;
+
+		case KEY_RIGHTARROW:
+			if (saveCharIndex < SAVESTRINGSIZE-2 &&
+			M_StringWidth(savegamestrings[quickSaveSlot]) < (SAVESTRINGSIZE-2)*8)
+			{
+				savegamestrings[quickSaveSlot][saveCharIndex+1] = ' ';
+				savegamestrings[quickSaveSlot][saveCharIndex+2] = 0;
+				saveCharIndex++;
+			}
+			break;
+			default: break;
+		}
+        return true;
+    }
+#endif
 
     // Take care of any messages that need input
     if (messageToPrint)

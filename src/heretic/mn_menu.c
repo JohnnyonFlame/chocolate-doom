@@ -22,6 +22,7 @@
 #include "deh_str.h"
 #include "doomdef.h"
 #include "doomkeys.h"
+#include "i_timer.h"
 #include "i_system.h"
 #include "i_swap.h"
 #include "m_controls.h"
@@ -843,12 +844,27 @@ static boolean SCLoadGame(int option)
 
 static boolean SCSaveGame(int option)
 {
+#ifdef USE_VIRTUALKEYBOARD
+	int hour, minute, second;
+#endif
     char *ptr;
 
     if (!FileMenuKeySteal)
     {
         FileMenuKeySteal = true;
         M_StringCopy(oldSlotText, SlotText[option], sizeof(oldSlotText));
+
+#ifdef USE_VIRTUALKEYBOARD
+        hour = leveltime / (TICRATE * 360);
+        minute = leveltime / (TICRATE * 60);
+        second = leveltime / TICRATE;
+
+        if (hour)
+            snprintf(SlotText[option], SLOTTEXTLEN + 2, "E%iM%i %02i:%02iH", gameepisode, gamemap, hour, minute % 60);
+        else
+            snprintf(SlotText[option], SLOTTEXTLEN + 2, "E%iM%i %02i:%02iM", gameepisode, gamemap, minute, second % 60);
+#endif
+
         ptr = SlotText[option];
         while (*ptr)
         {
@@ -1504,6 +1520,7 @@ boolean MN_Responder(event_t * event)
     }
     else
     {                           // Editing file names
+#ifndef USE_VIRTUALKEYBOARD
         textBuffer = &SlotText[currentSlot][slotptr];
         if (key == KEY_BACKSPACE)
         {
@@ -1558,6 +1575,32 @@ boolean MN_Responder(event_t * event)
                 return (true);
             }
         }
+#else
+        if (key == KEY_BBUTTON)
+        {
+            memset(SlotText[currentSlot], 0, SLOTTEXTLEN + 2);
+            M_StringCopy(SlotText[currentSlot], oldSlotText,
+                         sizeof(SlotText[currentSlot]));
+            SlotStatus[currentSlot]--;
+            MN_DeactivateMenu();
+            return (true);
+        }
+        if (key == KEY_ABUTTON)
+        {
+            SlotText[currentSlot][slotptr] = 0; // clear the cursor
+            item = &CurrentMenu->items[CurrentItPos];
+            CurrentMenu->oldItPos = CurrentItPos;
+            if (item->type == ITT_EFUNC)
+            {
+                item->func(item->option);
+                if (item->menu != MENU_NONE)
+                {
+                    SetMenu(item->menu);
+                }
+            }
+            return (true);
+        }
+#endif
         return (true);
     }
     return (false);
