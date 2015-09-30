@@ -17,7 +17,7 @@
 //
 
 
-#include "SDL.h"
+#include <SDL.h>
 #include <stdlib.h>
 #include <ctype.h>
 #include <math.h>
@@ -1952,8 +1952,11 @@ static void SetVideoMode(screen_mode_t *mode, int w, int h)
     }
 
     // Set the video mode.
-
+#ifdef SDL_TRIPLEBUF
+    flags |= SDL_HWSURFACE | SDL_TRIPLEBUF;
+#else
     flags |= SDL_SWSURFACE | SDL_DOUBLEBUF;
+#endif
 
     if (screen_bpp == 8)
     {

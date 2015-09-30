@@ -23,8 +23,9 @@
 #include "i_timer.h"
 
 // Palette fade-in takes two seconds
+// JohnnyonFlame: Not anymore.
 
-#define FADE_TIME 2000
+#define FADE_TIME 1000
 
 #define HR_SCREENWIDTH 640
 #define HR_SCREENHEIGHT 480
